@@ -21,3 +21,16 @@ class Trip(models.Model):
 
     def __str__(self):
         return f"Trip for {self.courier.name} - Income: {self.income}"
+    
+class TripPenaltyAward(models.Model):
+    TRIP_CHOICES = (
+        ('PENALTY', 'Penalty'),
+        ('AWARD', 'Award'),
+    )
+
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    type = models.CharField(max_length=10, choices=TRIP_CHOICES)
+
+    def __str__(self):
+        return f"{self.get_type_display()} for trip {self.trip.id}: {self.amount}"
