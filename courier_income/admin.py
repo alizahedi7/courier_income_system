@@ -9,13 +9,16 @@ class CourierAdmin(admin.ModelAdmin):
 
 @admin.register(Trip)
 class TripAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('courier', 'income', 'date')
+    list_filter = ('courier', 'date')
+    search_fields = ('courier', 'date')
 
 @admin.register(TripPenaltyAward)
 class TripPenaltyAwardAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('trip', 'amount', 'type')
+    list_filter = ('trip', 'type')
 
 @admin.register(DailyIncome)
 class DailyIncomeAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('courier', 'date', 'total_income')
 
