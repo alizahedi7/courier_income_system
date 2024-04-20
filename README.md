@@ -42,9 +42,11 @@ You can create and update instances of the models through the Django admin inter
 ## Testing
 
 The project includes tests for the models and their methods. You can run the tests with the following command:
-    ```bash
-    python manage.py test
-    ```
+    
+```bash
+python manage.py test
+```
+
 
 ## Contributing
 
