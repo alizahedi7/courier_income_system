@@ -34,3 +34,11 @@ class TripPenaltyAward(models.Model):
 
     def __str__(self):
         return f"{self.get_type_display()} for trip {self.trip.id}: {self.amount}"
+    
+class DailyIncome(models.Model):
+    courier = models.ForeignKey(Courier, on_delete=models.CASCADE)
+    date = models.DateField(default=timezone.now)
+    total_income = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"Daily Income for {self.courier.name} on {self.date}: {self.total_income}"
