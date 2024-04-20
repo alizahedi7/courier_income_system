@@ -2,6 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from datetime import timedelta
+from django.db import transaction
 
 
 class Courier(models.Model):
@@ -16,6 +17,7 @@ class Trip(models.Model):
     income = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField(default=timezone.now)
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
         if self.income < 0:
             raise ValidationError("Income cannot be negative")
@@ -48,6 +50,7 @@ class TripPenaltyAward(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     type = models.CharField(max_length=10, choices=TRIP_CHOICES)
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.trip.update_daily_income()
@@ -64,6 +67,7 @@ class DailyIncome(models.Model):
     class meta:
         unique_together = ('courier', 'date')
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.update_weekly_income()
