@@ -26,6 +26,7 @@ class Trip(models.Model):
         daily_income, created = DailyIncome.objects.get_or_create(
             courier=self.courier,
             date=self.date,
+            defaults={'total_income': 0}
         )
         total_income = Trip.objects.filter(courier=self.courier, date=self.date).aggregate(models.Sum('income'))['income__sum'] or 0
         total_award = TripPenaltyAward.objects.filter(trip__courier=self.courier, trip__date=self.date, type='AWARD').aggregate(models.Sum('amount'))['amount__sum'] or 0
@@ -49,8 +50,8 @@ class TripPenaltyAward(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        self.trip.update_daily_salary()
-        
+        self.trip.update_daily_income()
+
     def __str__(self):
         return f"{self.get_type_display()} for trip {self.trip.id}: {self.amount}"
     
@@ -62,3 +63,12 @@ class DailyIncome(models.Model):
 
     def __str__(self):
         return f"Daily Income for {self.courier.name} on {self.date}: {self.total_income}"
+
+
+class WeeklyIncome(models.Model):
+    courier = models.ForeignKey(Courier, on_delete=models.CASCADE)
+    week_start_date = models.DateField()
+    total_income = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"Weekly Income for {self.courier.name} starting {self.week_start_date}: {self.total_income}"
