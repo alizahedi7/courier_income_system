@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
-
+from datetime import timedelta
 
 
 class Courier(models.Model):
@@ -60,6 +60,22 @@ class DailyIncome(models.Model):
     courier = models.ForeignKey(Courier, on_delete=models.CASCADE)
     date = models.DateField(default=timezone.now)
     total_income = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.update_weekly_income()
+
+    def update_weekly_income(self):
+        # Adjusted calculation for Saturday as the first day of the week
+        week_start_date = self.date - timedelta(days=(self.date.weekday() + 2) % 7)
+        weekly_income, created = WeeklyIncome.objects.get_or_create(
+            courier=self.courier,
+            week_start_date=week_start_date,
+            defaults={'total_income': 0}
+        )
+        total_income = DailyIncome.objects.filter(courier=self.courier, date__gte=week_start_date, date__lt=week_start_date + timedelta(days=7)).aggregate(models.Sum('total_income'))['total_income__sum'] or 0
+        weekly_income.total_income = total_income
+        weekly_income.save()
 
     def __str__(self):
         return f"Daily Income for {self.courier.name} on {self.date}: {self.total_income}"
