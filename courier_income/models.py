@@ -61,6 +61,9 @@ class DailyIncome(models.Model):
     date = models.DateField(default=timezone.now)
     total_income = models.DecimalField(max_digits=10, decimal_places=2)
 
+    class meta:
+        unique_together = ('courier', 'date')
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.update_weekly_income()
@@ -85,6 +88,9 @@ class WeeklyIncome(models.Model):
     courier = models.ForeignKey(Courier, on_delete=models.CASCADE)
     week_start_date = models.DateField()
     total_income = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        unique_together = ('courier', 'week_start_date')
 
     def __str__(self):
         return f"Weekly Income for {self.courier.name} starting {self.week_start_date}: {self.total_income}"
